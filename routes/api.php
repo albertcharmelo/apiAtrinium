@@ -4,7 +4,7 @@ use App\Http\Controllers\API\CompanyController;
 use App\Http\Controllers\API\RoleRequestController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\ActivityTypeController;
-
+use App\Http\Controllers\API\ConvertCurrencyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -55,4 +55,10 @@ Route::group(['prefix' => 'activity-type'], function () {
     Route::get('/{activityType}', [ActivityTypeController::class, 'show'])->middleware('auth:sanctum');
     Route::put('/{activityType}', [ActivityTypeController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{activityType}', [ActivityTypeController::class, 'destroy'])->middleware('auth:sanctum');
+});
+
+/* -------------------------------------- CONVERT CURRENCY -------------------------------------- */
+Route::group(['prefix' => 'currency'], function () {
+    Route::post('convert', [ConvertCurrencyController::class, 'convert']);
+    Route::get('update-historical', [ConvertCurrencyController::class, 'updateHistorical']);
 });
