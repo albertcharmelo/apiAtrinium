@@ -29,8 +29,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [UserController::class, 'login']);
     Route::post('register', [UserController::class, 'store']);
     Route::post('logout', [UserController::class, 'logout']);
-    // Route::post('refresh', 'AuthController@refresh');
-    // Route::post('me', 'AuthController@me');
+    Route::post('user', [UserController::class, 'user']);
 });
 
 /* -------------------------------------------- ROLES ------------------------------------------- */
