@@ -7,10 +7,9 @@
 
     - Email: {{ $user->email }}
 
-    <x-mail::button :url="route('home')">
+    <x-mail::button :url="route('/')">
         Visit Our Application
     </x-mail::button>
 
-    Thanks,<br>
-    {{ config('app.name') }}
+
 </x-mail::message>

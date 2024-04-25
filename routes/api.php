@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\API\RoleRequestController;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +18,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+
+/* --------------------------------------- AUTHENTICATION --------------------------------------- */
+Route::group(['prefix' => 'auth'], function () {
+    Route::post('login', [UserController::class, 'login']);
+    Route::post('register', [UserController::class, 'store']);
+    // Route::post('logout', 'AuthController@logout');
+    // Route::post('refresh', 'AuthController@refresh');
+    // Route::post('me', 'AuthController@me');
+});
+
+/* -------------------------------------------- ROLES ------------------------------------------- */
+Route::group(['prefix' => 'role'], function () {
+    Route::post('request', [RoleRequestController::class, 'store'])->middleware('auth:sanctum');
+    Route::put('request/{roleRequest}', [RoleRequestController::class, 'update'])->middleware('auth:sanctum');
 });

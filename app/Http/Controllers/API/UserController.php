@@ -4,11 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Mail\UserRegistered;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -25,26 +26,64 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $validatedData = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
+            'password' => 'required|string|min:8',
+            'phone' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
         ]);
 
-        $user = new User($validatedData);
-        $user->password = Hash::make($validatedData['password']);
+        if ($validatedData->fails()) {
+            return response()->json([
+                'errors' => $validatedData->errors()
+            ], 400);
+        }
+
+        // save user
+        $data = $validatedData->validated();
+        $user = new User($data);
+        $user->password = Hash::make($data['password']);
         $user->save();
-
         Mail::to($user->email)->send(new UserRegistered($user));
-
-
-
+        $user->assignRole(Role::findByName('user', 'api'));
 
         return response()->json([
             'message' => 'User registered successfully',
+            'user' => $user
         ], 201);
+    }
+
+
+    public function login(Request $request)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'errors' => $validatedData->errors()
+            ], 400);
+        }
+
+        $data = $validatedData->validated();
+        $user = User::where('email', $data['email'])->first();
+
+        if (!$user || !Hash::check($data['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'User logged in successfully',
+            'user' => $user,
+            'token' => $token
+        ], 200);
     }
 
     /**
