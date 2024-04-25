@@ -17,6 +17,7 @@ class Company extends Model
         'document_type',
         'document_number',
         'status',
+        'user_id'
     ];
 
     /**
