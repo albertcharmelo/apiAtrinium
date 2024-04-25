@@ -24,4 +24,12 @@ class ActivityType extends Model
     {
         return $this->belongsToMany(Company::class);
     }
+
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', "%$search%")
+            ->orWhere('description', 'like', "%$search%")
+            ->orWhere('user_id', 'like', "%$search%");
+    }
 }

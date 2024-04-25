@@ -56,4 +56,21 @@ class User extends Authenticatable
     {
         return $this->hasOne(Company::class);
     }
+
+
+    public function scopeOwners($query)
+    {
+        return $query->whereHas('roles', function ($query) {
+            $query->where('name', 'owner');
+        });
+    }
+
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'LIKE', "%$search%")
+            ->orWhere('email', 'LIKE', "%$search%")
+            ->orWhere('phone', 'LIKE', "%$search%")
+            ->orWhere('address', 'LIKE', "%$search%");
+    }
 }

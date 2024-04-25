@@ -33,4 +33,29 @@ class Company extends Model
     {
         return $this->belongsToMany(ActivityType::class);
     }
+
+
+    public function scopeWithoutActivityTypes($query)
+    {
+        return $query->whereDoesntHave('activityTypes');
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', "%$search%")
+            ->orWhere('email', 'like', "%$search%")
+            ->orWhere('phone', 'like', "%$search%")
+            ->orWhere('address', 'like', "%$search%")
+            ->orWhere('document_type', 'like', "%$search%")
+            ->orWhere('document_number', 'like', "%$search%");
+    }
+
+    public function scopeOwners($query)
+    {
+        return $query->whereHas('user', function ($query) {
+            $query->whereHas('roles', function ($query) {
+                $query->where('name', 'owner');
+            });
+        });
+    }
 }

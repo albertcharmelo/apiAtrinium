@@ -28,8 +28,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [UserController::class, 'login']);
     Route::post('register', [UserController::class, 'store']);
-    Route::post('logout', [UserController::class, 'logout']);
-    Route::post('user', [UserController::class, 'user']);
+    Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('user', [UserController::class, 'user'])->middleware('auth:sanctum');
 });
 
 /* -------------------------------------------- ROLES ------------------------------------------- */
