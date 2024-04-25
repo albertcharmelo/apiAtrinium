@@ -12,6 +12,7 @@ class ActivityType extends Model
     protected $fillable = [
         'name',
         'description',
+        'user_id' // no es para asociar es para saber quien lo creo
     ];
 
     /**

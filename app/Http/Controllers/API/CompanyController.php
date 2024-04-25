@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityType;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -158,5 +159,42 @@ class CompanyController extends Controller
             DB::rollBack();
             return response()->json(['error' => 'Error deleting company'], 500);
         }
+    }
+
+    public function toogleActivityType(Request $request)
+    {
+
+        $validatedData = Validator::make(
+            $request->all(),
+            [
+                'company_id' => 'required|exists:companies,id',
+                'activity_type_id' => 'required|exists:activity_types,id',
+            ]
+        );
+
+        if ($validatedData->fails()) {
+            return response()->json(['errors' => $validatedData->errors()], 400);
+        }
+
+        $company = Company::find($request->company_id);
+        $activityType = ActivityType::find($request->activity_type_id);
+
+        if (!$company || !$activityType) {
+            return response()->json(['error' => 'Company or activity type not found'], 404);
+        }
+
+        if (!$request->user()->hasRole('admin') || $request->user()->company->id !== $company->id) {
+            return response()->json([
+                'error' => 'You must be an admin or the owner of the company to toggle activity types.',
+            ], 400);
+        }
+
+        if ($company->activityTypes->contains($activityType)) {
+            $company->activityTypes()->detach($activityType);
+        } else {
+            $company->activityTypes()->attach($activityType);
+        }
+
+        return response()->json(['message' => 'Activity type toggled successfully'], 200);
     }
 }

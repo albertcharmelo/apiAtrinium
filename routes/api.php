@@ -3,6 +3,8 @@
 use App\Http\Controllers\API\CompanyController;
 use App\Http\Controllers\API\RoleRequestController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\ActivityTypeController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,4 +46,14 @@ Route::group(['prefix' => 'company'], function () {
     Route::get('/{company}', [CompanyController::class, 'show'])->middleware('auth:sanctum');
     Route::put('/{company}', [CompanyController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{company}', [CompanyController::class, 'destroy'])->middleware('auth:sanctum');
+    Route::post('toogle-activity-type', [CompanyController::class, 'toogleActivityType'])->middleware('auth:sanctum');
+});
+
+/* ------------------------------------------ ACTIVITY TYPES ----------------------------------------- */
+Route::group(['prefix' => 'activity-type'], function () {
+    Route::get('/', [ActivityTypeController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('/', [ActivityTypeController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/{activityType}', [ActivityTypeController::class, 'show'])->middleware('auth:sanctum');
+    Route::put('/{activityType}', [ActivityTypeController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{activityType}', [ActivityTypeController::class, 'destroy'])->middleware('auth:sanctum');
 });
