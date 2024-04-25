@@ -28,4 +28,9 @@ class Company extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function activityTypes()
+    {
+        return $this->belongsToMany(ActivityType::class);
+    }
 }
