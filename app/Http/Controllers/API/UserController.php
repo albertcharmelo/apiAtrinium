@@ -16,9 +16,19 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'error' => 'User must be an admin'
+            ], 400);
+        }
+
+        $users = User::all();
+
+        return response()->json([
+            'users' => $users
+        ], 200);
     }
 
     /**
@@ -86,12 +96,59 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function user(Request $request)
+    {
+        if (!$request->user()) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'user' => $request->user()
+        ], 200);
+    }
+
+
+    public function logout(Request $request)
+    {
+        if (!$request->user()) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'User logged out successfully'
+        ], 200);
+    }
+
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        if (
+            !$request->user()->hasRole('admin') &&
+            $request->user()->id !== $user->id
+        ) {
+            return response()->json([
+                'message' => 'User must be an admin or the user itself.'
+            ], 400);
+        }
+
+        return response()->json([
+            'user' => $user,
+            'message' => 'User retrieved successfully.'
+        ]);
     }
 
     /**
@@ -99,14 +156,71 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        if (
+            !$request->user()->hasRole('admin') &&
+            $request->user()->id !== $user->id
+        ) {
+            return response()->json([
+                'message' => 'User must be an admin or the user itself.'
+            ], 400);
+        }
+
+        $validatedData = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'phone' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+        ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $validatedData->errors()
+            ], 400);
+        }
+
+        $user->update($validatedData->validated());
+
+        return response()->json([
+            'user' => $user,
+            'message' => 'User updated successfully.'
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        //
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        if (
+            !$request->user()->hasRole('admin') &&
+            $request->user()->id !== $user->id
+        ) {
+            return response()->json([
+                'message' => 'User must be an admin or the user itself.'
+            ], 400);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'User deleted successfully.'
+        ]);
     }
 }
