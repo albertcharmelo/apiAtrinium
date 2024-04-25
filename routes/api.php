@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\CompanyController;
 use App\Http\Controllers\API\RoleRequestController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
@@ -34,4 +35,13 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'role'], function () {
     Route::post('request', [RoleRequestController::class, 'store'])->middleware('auth:sanctum');
     Route::put('request/{roleRequest}', [RoleRequestController::class, 'update'])->middleware('auth:sanctum');
+});
+
+/* ------------------------------------------ COMPANIES ----------------------------------------- */
+Route::group(['prefix' => 'company'], function () {
+    Route::get('/', [CompanyController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('/', [CompanyController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/{company}', [CompanyController::class, 'show'])->middleware('auth:sanctum');
+    Route::put('/{company}', [CompanyController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{company}', [CompanyController::class, 'destroy'])->middleware('auth:sanctum');
 });

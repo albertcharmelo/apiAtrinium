@@ -17,7 +17,17 @@ class RoleRequestController extends Controller
      */
     public function index()
     {
-        //
+        $user = request()->user();
+        if ($user->hasRole('admin')) {
+            $roleRequests = RoleRequest::all();
+            return response()->json([
+                'role_requests' => $roleRequests
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'You are not authorized to perform this action'
+            ], 403);
+        }
     }
 
     /**
@@ -87,7 +97,18 @@ class RoleRequestController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $roleRequest = RoleRequest::findOrFail($id);
+        $user = request()->user();
+
+        if ($user->hasRole('admin') || $roleRequest->user_id === $user->id) {
+            return response()->json([
+                'role_request' => $roleRequest
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'You are not authorized to perform this action'
+            ], 403);
+        }
     }
 
     /**
@@ -158,6 +179,5 @@ class RoleRequestController extends Controller
      */
     public function destroy(string $id)
     {
-        //
     }
 }
