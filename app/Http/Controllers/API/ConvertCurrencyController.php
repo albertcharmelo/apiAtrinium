@@ -24,18 +24,15 @@ class ConvertCurrencyController extends Controller
                 'errors' => $validatedData->errors(),
             ], 400);
         }
-        //update rates      
+
         try {
             ConvertCurrencyController::updateHistorical();
         } catch (\Exception $e) {
-            // If an error occurs, use the last available update
-            $lastUpdated = ConvertCurrency::orderBy('last_updated', 'desc')->first();
-            if (!$lastUpdated) {
-                return response()->json([
-                    'message' => 'Failed to update rates and no previous rates available.',
-                ], 500);
-            }
+            return response()->json([
+                'message' => 'Failed to convert currency.',
+            ], 500);
         }
+
 
         $to = $request->to;
         $amount = $request->amount;
@@ -73,7 +70,7 @@ class ConvertCurrencyController extends Controller
         }
 
         //get url from env
-        $url = env('API_FIXER_URL');
+        $url = "http://data.fixer.io/api/latest?access_key=b12e1c2bad853b2c5517cf0b20649008";
 
         $curl = curl_init();
 
@@ -105,8 +102,8 @@ class ConvertCurrencyController extends Controller
                 ConvertCurrency::updateOrCreate(
                     ['from_currency' => $currency],
                     [
-                        'rate' => (float) $rate, 'last_updated' =>
-                        date('Y-m-d', strtotime($date))
+                        'rate' => number_format((float) $rate, 2, '.', ''),
+                        'last_updated' => date('Y-m-d', strtotime($date))
                     ]
                 );
             }

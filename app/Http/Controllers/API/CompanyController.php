@@ -61,7 +61,12 @@ class CompanyController extends Controller
         try {
             $company = Company::create($request->all());
             $user->company()->save($company);
+            $company->user()->associate($user);
             DB::commit();
+
+
+
+            return response()->json(['company' => $company], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Error creating company'], 500);
@@ -79,6 +84,8 @@ class CompanyController extends Controller
         if (!$company) {
             return response()->json(['error' => 'Company not found'], 404);
         }
+
+        $company->load('activityTypes')->load('user');
 
         if (
             !$request->user()->hasRole('admin') &&
@@ -104,7 +111,7 @@ class CompanyController extends Controller
                 'address' => 'required|string|max:255',
                 'document_type' => 'required|in:dni,cif,nie,passport,other',
                 'document_number' => 'required|string|max:255',
-                'status' => 'required|in:active,inactive',
+                'status' => 'in:active,inactive',
             ]
         );
 
